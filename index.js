@@ -3,8 +3,15 @@ const app = express();
 
 // 引入user路由
 const userRouter = require('./router/user');
+// 引入home路由
+const homeRouter = require('./router/home');
+
+
+
 // 注册user路由
-app.use(userRouter);
+app.use("/user",userRouter);
+// 注册home路由
+app.use("/home",homeRouter);
 
 
 

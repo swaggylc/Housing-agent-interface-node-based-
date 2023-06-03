@@ -24,14 +24,14 @@ client.getConnection(function (err, connection) {
         console.log('连接失败:' + err.message);
     }
     else {
-        console.log('连接数据库成功');
+        console.log('连接数据库成功--user');
     }
 })
 
 
 
 // 1.查询用户信息
-router.get('/user/list', (req, res) => {
+router.get('/list', (req, res) => {
     const sqlStr = 'select * from user'
     client.query(sqlStr, (err, results) => {
         if (err) {
@@ -54,7 +54,17 @@ router.get('/user/list', (req, res) => {
 );
 
 // 2.添加用户信息
-router.post('/user/add', (req, res) => {
+/**
+ * 参数：
+ * name: 姓名
+ * idNum: 身份证号
+ * birthday: 出生日期
+ * gender: 性别
+ * email: 邮箱
+ * address: 地址
+ * phoneNum: 手机号
+ */
+router.post('/add', (req, res) => {
     //获取用户提交的数据
     const user = req.body;
     console.log(user);
@@ -79,7 +89,19 @@ router.post('/user/add', (req, res) => {
 );
 
 // 3.修改用户信息
-router.post('/user/update', (req, res) => {
+/**
+ * 参数：
+ * userId: 用户id
+ * name: 姓名
+ * idNum: 身份证号
+ * birthday: 出生日期
+ * gender: 性别
+ * email: 邮箱
+ * address: 地址
+ * phoneNum: 手机号
+ * 
+ */
+router.post('/update', (req, res) => {
     //获取用户提交的数据
     const user = req.body;
     //修改用户信息
@@ -102,7 +124,12 @@ router.post('/user/update', (req, res) => {
 })
 
 // 4.删除用户信息
-router.delete('/user/delete', (req, res) => {
+/**
+ * 参数：
+ * userId: 用户id
+ * 
+ */
+router.delete('/delete', (req, res) => {
     // console.log(req.body);
     const sqlStr = 'delete from user where userId=?'
     client.query(sqlStr, [req.body.userId], (err, results) => {
@@ -128,14 +155,69 @@ router.delete('/user/delete', (req, res) => {
 
 
 
+// 用户注册（添加用户）
+/**
+ * 参数：
+ * account: 账号
+ * password: 密码
+ * phoneNumber: 手机号
+ * email: 邮箱
+ */
+router.post('/register', (req, res) => {
+    const { account, password, phoneNumber, email } = req.body;
+    const sqlStr = 'insert into user_account (account, password,phoneNumber ,email) values (?, ?, ?, ?)'
+    client.query(sqlStr, [account, password, phoneNumber, email], (err, results) => {
+        if (err) {
+            res.send({
+                code: 201,
+                msg: '注册失败'
+            })
+            //保存数据失败
+            return console.log(err.message)
+        }
+        //保存数据成功
+        res.send({
+            code: 200,
+            msg: '注册成功'
+        })
+    }
+    )
+})
 
 
-
-
-
-
-
-
+// 用户登陆
+/**
+ * 参数：
+ * account: 账号
+ * password: 密码
+ */
+router.post('/login', (req, res) => {
+    const { account, password } = req.body;
+    const sqlStr = 'select * from user_account'
+    client.query(sqlStr, (err, results) => {
+        if (err) {
+            res.send({
+                code: 201,
+                msg: '登陆失败'
+            })
+            return console.log(err.message)
+        }
+        const user = results.find(item => item.account === account && item.password === password)
+        if (!user) {
+            res.send({
+                code: 202,
+                msg: '账号或密码错误'
+            })
+            return
+        } else {
+            res.send({
+                code: 200,
+                msg: '登陆成功'
+            })
+        }
+    }
+    )
+})
 
 
 
