@@ -6,8 +6,6 @@ const express = require("express");
 const mysql = require("mysql");
 const router = express.Router();
 
-
-
 //2.建立与 mysql 数据库的联系
 const client = mysql.createPool({
   host: "127.0.0.1", //数据库的 ip 地址
@@ -48,37 +46,50 @@ router.get("/list", (req, res) => {
 });
 // 1.1根据id查询房产信息
 router.post("/check", (req, res) => {
-    // console.log(req.body);
-    const homeId = req.body.homeId;
-    const sqlStr = "select * from home where homeId=?";
-    client.query(sqlStr, [homeId], (err, results) => {
-        if (err) {
-            //查询数据失败
-            res.send({
-                code: 201,
-                msg: "查询房产信息失败",
-            });
-            return console.log(err.message);
-        }
-        // console.log(results);
-        //查询数据成功
-        res.send({
-            code: 200,
-            msg: "查询数据成功",
-            data: results,
-        });
+  // console.log(req.body);
+  const homeId = req.body.homeId;
+  const sqlStr = "select * from home where homeId=?";
+  client.query(sqlStr, [homeId], (err, results) => {
+    if (err) {
+      //查询数据失败
+      res.send({
+        code: 201,
+        msg: "查询房产信息失败",
+      });
+      return console.log(err.message);
+    }
+    // console.log(results);
+    //查询数据成功
+    res.send({
+      code: 200,
+      msg: "查询数据成功",
+      data: results,
     });
+  });
 });
 
-
-
-
-
-
-
-
-
-
+// 1.2根据搜索框查询房产信息
+router.post("/search", (req, res) => {
+  const search = req.body.search;
+  const sqlStr = "select * from home where address like '%" + search + "%'";
+  client.query(sqlStr, (err, results) => {
+    if (err) {
+      //查询数据失败
+      res.send({
+        code: 201,
+        msg: "查询房产信息失败",
+      });
+      return console.log(err.message);
+    }
+    // console.log(results);
+    //查询数据成功
+    res.send({
+      code: 200,
+      msg: "查询数据成功",
+      data: results,
+    });
+  });
+});
 
 // 2.添加房产信息
 /**
@@ -89,21 +100,31 @@ router.post("/check", (req, res) => {
  * address: 房产地址
  * price: 房产价格
  * buyTime: 购买时间
+ * imgUrl: 房产图片
+ * cellUserId: 售卖人id
  */
 router.post("/add", (req, res) => {
-    // console.log(req.body);
+  console.log(req.body);
   //获取用户提交的数据
-  const { allArea, actualArea, type, address, price, buyTime,imgUrl } = req.body;
+  const {
+    allArea,
+    actualArea,
+    type,
+    address,
+    price,
+    buyTime,
+    imgUrl,
+    sellUserId,
+  } = req.body;
   // console.log(home);
   //把用户提交的数据保存到数据库中
   const sqlStr =
-    "insert into home (allArea, actualArea, type, address, price, buyTime,imgUrl,cellUserId) values (?, ?, ?, ?, ?, ?,?,?)";
+    "insert into home (allArea, actualArea, type, address, price, buyTime,imgUrl,sellUserId) values (?, ?, ?, ?, ?, ?,?,?)";
   client.query(
     sqlStr,
-    [allArea, actualArea, type, address, price, buyTime,imgUrl,cellUserId],
+    [allArea, actualArea, type, address, price, buyTime, imgUrl, sellUserId],
     (err, results) => {
       if (err) {
-
         //保存数据失败
         res.send({
           code: 201,
@@ -162,13 +183,21 @@ router.delete("/delete", (req, res) => {
  */
 router.post("/update", (req, res) => {
   // console.log(req.body);
-  const { homeId, allArea, actualArea, type, address, price, buyTime,sellUserId } =
-    req.body;
+  const {
+    homeId,
+    allArea,
+    actualArea,
+    type,
+    address,
+    price,
+    buyTime,
+    sellUserId,
+  } = req.body;
   const sqlStr =
     "update home set allArea=?, actualArea=?, type=?, address=?, price=?, buyTime=?,sellUserId=? where homeId=?";
   client.query(
     sqlStr,
-    [allArea, actualArea, type, address, price, buyTime,sellUserId, homeId],
+    [allArea, actualArea, type, address, price, buyTime, sellUserId, homeId],
     (err, results) => {
       if (err) {
         //修改用户信息失败

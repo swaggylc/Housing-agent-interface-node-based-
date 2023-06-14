@@ -63,7 +63,7 @@ router.post("/add", (req, res) => {
         //添加数据成功
         res.send({
             code: 200,
-            msg: "添加数据成功",
+            msg: "添加留言信息成功",
             data: results,
         });
     });
